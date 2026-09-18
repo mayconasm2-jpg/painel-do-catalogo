@@ -1,0 +1,45 @@
+{
+  "summary": "Comprehensive backend + frontend test of Scayl multi-tenant catalog panel. 29/30 backend pytest tests pass. Owner login, admin login, tenant isolation, products CRUD/search/sort/pagination/promo validation/duplicate/bulk, categories CRUD/reorder/delete-with-target, store profile/appearance/delivery(fee=R$8 forced)/payments (both validations), status publish, media upload+fetch, share QR (PNG), invite flow + editor RBAC restriction (invite editor cannot invite), public catalog reflects appearance color and published products, analytics events + KPIs, admin overview counts (1 store, 16 products), admin stores list, plan change with invalid-plan 400, extend trial, suspend/reactivate + audit log. Frontend UI verified via Playwright: login → dashboard, /produtos shows 16 seeded products, /admin loads with correct counts, /loja/hapster-cookies renders store hero, 16 add-to-cart buttons, checkout modal shows Entrega R$8 / Retirada grátis, all 4 payment methods, and 'Enviar pedido no WhatsApp' button.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "POST /api/auth/login (brute-force lockout)", "issue": "Lockout after 5 failed attempts does NOT trigger 429 behind Kubernetes ingress. Root cause: _brute_locked uses identifier = f'{ip}:{email}' with request.client.host, which returns the internal K8s pod IP (e.g. 10.208.147.130, 10.208.147.133). Requests are load-balanced across multiple pod replicas and each pod gets a different upstream hop IP, so counters get scattered and never reach the 5 threshold. Verified by inspecting login_attempts collection: two separate records with count=4 and count=3 for the same email across two ingress hops after 7 attempts. This means the feature is effectively bypassable in production. Fix: honor X-Forwarded-For (last trusted) or key the lockout purely on email (with a small per-IP secondary key), and/or use starlette's ProxyHeadersMiddleware / trust_hosts.", "priority": "HIGH"}
+    ],
+    "minor": [
+      {"endpoint": "CORS middleware", "issue": "app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=['*']). Combining credentials with wildcard origins is invalid per CORS spec and modern browsers will reject cross-site cookie requests. Currently works only because the frontend and backend share the same origin via the ingress. Set CORS_ORIGINS explicitly to the FRONTEND_URL."},
+      {"endpoint": "on_event startup/shutdown", "issue": "FastAPI @app.on_event is deprecated in favor of lifespan handlers (non-blocking)."},
+      {"endpoint": "/api/store/appearance and /store/delivery/payments", "issue": "Accept raw dict body without Pydantic validation of structure/keys — a malformed appearance object could overwrite store settings unpredictably."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Public catalog /loja/hapster-cookies", "issues": ["Renders correctly with hero image, categories, cart panel, checkout modal. All expected data-testids present (catalog-add-*, catalog-checkout, checkout-delivery/pickup/send)."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "HIGH: Fix brute-force lockout to work behind K8s ingress — use X-Forwarded-For or key the counter on email (not ip:email) and enable a proxy-headers middleware so request.client.host reflects the real client.",
+    "Restrict CORS_ORIGINS to the actual FRONTEND_URL when allow_credentials=True (spec compliance).",
+    "Optionally add Pydantic models for /store/appearance, /store/delivery, /store/payments bodies for stronger validation."
+  ],
+  "critical_code_review_comments": [
+    "server.py is 930 lines — consider splitting into routers (auth, store, products, categories, admin, public).",
+    "Multiple endpoints (e.g. /categories/{cid}, /users/{uid}/*) use get_store_user (any store member) where owner/admin-only via require_store_manage would be safer for edit/delete actions. Editor role can currently delete/edit categories and products.",
+    "PUT /users/{uid}/role and DELETE /users/{uid} do not prevent demoting/removing the sole owner other than 'role != owner' guard on delete; role change can still convert owner to editor.",
+    "Time comparison uses ISO strings (e.g. locked_until, expires_at) — string comparison works for UTC ISO but is fragile; prefer storing datetimes."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py"
+  ],
+  "success_rate": {"backend": "97% (29/30)", "frontend": "100% (core flows verified)"},
+  "test_credentials": "Owner mayconasm2@gmail.com / hapster@2026; Admin admin@scayl.com / scayl@admin2026; slug hapster-cookies. All confirmed working.",
+  "seed_data_creation": "Seed already produced 1 store, 5 categories, 16 products. Tests create/cleanup TEST_ prefixed rows.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend suite at /app/backend/tests/backend_test.py runs green except brute-force test (real bug, not test issue). Public catalog E2E, add-to-cart, and checkout modal are working. Editor role restriction is only enforced on manage endpoints (require_store_manage); most product/category endpoints use get_store_user so editors have wider access than the plan implies — main agent may want to tighten.",
+  "rca of the issue": "Brute-force lockout bug: FastAPI request.client.host returns the immediate upstream IP. In this Kubernetes environment the app sits behind an ingress + service that load-balances across pod replicas; each pod records a different internal hop IP as the client. Because the login_attempts identifier is 'ip:email', the same real user's 6 attempts land against 2–3 different identifiers, none of which reach count>=5. Reproduction: run 6 sequential POST /api/auth/login with a bad password for any email — all return 401 (never 429). Verified via `db.login_attempts.find({email: ...})` showing multiple docs with different '10.208.x.x:email' identifiers. Mitigation: (a) add Starlette's ProxyHeadersMiddleware / uvicorn --proxy-headers so request.client reflects X-Forwarded-For, or (b) drop IP from the identifier and use email only (with a global-per-email counter and optional per-IP secondary counter for defense-in-depth)."
+}

@@ -121,9 +121,17 @@ def default_store_doc(name: str, slug: str, owner_email: str, is_demo=False) -> 
     }
 
 
-async def _brute_locked(ip: str, email: str) -> bool:
-    ident = f"{ip}:{email}"
-    rec = await db.login_attempts.find_one({"identifier": ident})
+def client_ip(request: Request) -> str:
+    fwd = request.headers.get("x-forwarded-for", "")
+    if fwd:
+        return fwd.split(",")[0].strip()
+    return request.client.host if request.client else "?"
+
+
+async def _brute_locked(email: str) -> bool:
+    # Keyed on email (identifier == email) so it works behind a multi-replica
+    # ingress where request.client.host varies per hop.
+    rec = await db.login_attempts.find_one({"identifier": email})
     if rec and rec.get("count", 0) >= 5:
         if rec.get("locked_until") and rec["locked_until"] > now_utc().isoformat():
             return True
@@ -152,20 +160,19 @@ async def register(body: RegisterIn, response: Response):
 @api.post("/auth/login")
 async def login(body: LoginIn, request: Request, response: Response):
     email = body.email.lower().strip()
-    ip = request.client.host if request.client else "?"
-    ident = f"{ip}:{email}"
-    if await _brute_locked(ip, email):
+    ip = client_ip(request)
+    if await _brute_locked(email):
         raise HTTPException(status_code=429, detail="Muitas tentativas. Tente novamente em 15 minutos.")
     user = await db.users.find_one({"email": email})
     if not user or not verify_password(body.password, user["password_hash"]):
         await db.login_attempts.update_one(
-            {"identifier": ident},
-            {"$inc": {"count": 1}, "$set": {"email": email, "locked_until": (now_utc() + timedelta(minutes=15)).isoformat()}},
+            {"identifier": email},
+            {"$inc": {"count": 1}, "$set": {"email": email, "ip": ip, "locked_until": (now_utc() + timedelta(minutes=15)).isoformat()}},
             upsert=True)
         raise HTTPException(status_code=401, detail="E-mail ou senha incorretos")
     if user.get("status") == "disabled":
         raise HTTPException(status_code=403, detail="Acesso desativado. Contate o administrador.")
-    await db.login_attempts.delete_many({"identifier": ident})
+    await db.login_attempts.delete_many({"identifier": email})
     await db.users.update_one({"_id": user["_id"]}, {"$set": {"last_login": now_utc().isoformat()}})
     uid = str(user["_id"])
     tv = user.get("token_version", 0)
@@ -611,8 +618,13 @@ class RoleIn(BaseModel):
 
 @api.put("/users/{uid}/role")
 async def change_user_role(uid: str, body: RoleIn, user: dict = Depends(require_store_manage)):
-    if body.role not in ("owner", "admin", "editor"):
+    if body.role not in ("admin", "editor"):
         raise HTTPException(status_code=400, detail="Papel inválido")
+    target = await db.users.find_one({"_id": oid(uid), "store_id": oid(user["store_id"])})
+    if not target:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    if target.get("role") == "owner":
+        raise HTTPException(status_code=400, detail="Não é possível alterar o papel do proprietário")
     await db.users.update_one({"_id": oid(uid), "store_id": oid(user["store_id"])}, {"$set": {"role": body.role}})
     return {"message": "Permissão atualizada"}
 
@@ -901,10 +913,12 @@ async def root():
 
 
 app.include_router(api)
+_frontend = os.environ.get("FRONTEND_URL", "").strip()
+_cors = [o for o in os.environ.get("CORS_ORIGINS", "").split(",") if o] or ([_frontend] if _frontend else ["*"])
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","),
+    allow_origins=_cors,
     allow_methods=["*"],
     allow_headers=["*"],
 )
