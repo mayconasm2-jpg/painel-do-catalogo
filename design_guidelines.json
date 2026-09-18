@@ -1,0 +1,168 @@
+{
+  "project_name": "Scayl SaaS Multi-Tenant Admin Panel & Platform Admin Area",
+  "language": "pt-BR",
+  "design_archetype": "Swiss & Technical Precision (Neutral SaaS Control Panel)",
+  "identity_strategy": {
+    "brand_name": "Scayl",
+    "theme_separation_note": "The Scayl Admin Panel MUST have a completely neutral, high-contrast Slate/Zinc brand identity (#0F172A / #4F46E5 / #F8FAFC), strictly distinct and visually isolated from any tenant storefront customization (such as the Hapster Cookies teal theme).",
+    "target_users": "Store Owners (Lojistas), Store Admins, Product Editors, and Scayl Platform Internal Admins",
+    "tone": "Professional, efficient, trustworthy, fast, modular, command-center precision"
+  },
+  "typography": {
+    "heading_font": "Manrope, sans-serif",
+    "body_font": "IBM Plex Sans, sans-serif",
+    "mono_font": "JetBrains Mono, monospace",
+    "import_url": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@500;600;700;800&display=swap",
+    "size_hierarchy": {
+      "h1_hero_dashboard": "text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100",
+      "h2_section_title": "text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100",
+      "h3_card_header": "text-base font-semibold text-slate-900 dark:text-slate-100",
+      "h4_sub_header": "text-sm font-semibold text-slate-800 dark:text-slate-200",
+      "body_text": "text-sm font-normal text-slate-600 dark:text-slate-300 leading-relaxed",
+      "small_label": "text-xs font-medium text-slate-500 uppercase tracking-wider",
+      "metric_value": "text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-50 font-mono"
+    }
+  },
+  "colors": {
+    "neutral_background": {
+      "app_bg_light": "#F8FAFC",
+      "app_bg_dark": "#0B0F17",
+      "surface_card_light": "#FFFFFF",
+      "surface_card_dark": "#111827",
+      "sidebar_bg_light": "#0F172A",
+      "sidebar_bg_dark": "#090D16"
+    },
+    "scayl_accent": {
+      "primary_indigo": "#4F46E5",
+      "primary_hover": "#4338CA",
+      "primary_light": "#EEF2FF",
+      "neutral_dark_btn": "#0F172A",
+      "neutral_hover_btn": "#1E293B"
+    },
+    "borders": {
+      "subtle": "#E2E8F0",
+      "dark_subtle": "#1E293B",
+      "active_ring": "#6366F1"
+    },
+    "semantic_status": {
+      "success_bg": "#ECFDF5",
+      "success_text": "#047857",
+      "warning_bg": "#FFFBEB",
+      "warning_text": "#B45309",
+      "danger_bg": "#FEF2F2",
+      "danger_text": "#B91C1C",
+      "info_bg": "#EFF6FF",
+      "info_text": "#1D4ED8"
+    }
+  },
+  "layout_and_navigation": {
+    "structure": "Collapsible Sidebar + Fixed Topbar + Main Scrollable Canvas",
+    "tenant_workspace_indicator": "Active Store Switcher at top of sidebar showing Store Avatar, Store Name ('Hapster Cookies'), Tenant ID badge, and live Store Public View link shortcut",
+    "topbar_elements": [
+      "Breadcrumb navigation with entity hierarchy",
+      "Global search bar (Cmd/Ctrl + K)",
+      "Role badge indicator (e.g., 'Proprietário', 'Admin Scayl')",
+      "Store catalog quick preview toggle button (Open store in new tab)",
+      "Notifications popover with badge counter",
+      "User profile avatar & quick options menu (Logout, Account, Platform Admin Switch)"
+    ],
+    "sidebar_sections": {
+      "lojista_merchant_menu": [
+        { "label": "Visão geral", "icon": "LayoutDashboard", "path": "/dashboard" },
+        { "label": "Produtos", "icon": "Package", "path": "/products" },
+        { "label": "Categorias", "icon": "FolderTree", "path": "/categories" },
+        { "label": "Promoções e cupons", "icon": "Tag", "path": "/promotions" },
+        { "label": "Minha loja", "icon": "Store", "path": "/store-profile" },
+        { "label": "Aparência e banners", "icon": "Palette", "path": "/appearance" },
+        { "label": "Entrega e retirada", "icon": "Truck", "path": "/delivery" },
+        { "label": "Formas de pagamento", "icon": "CreditCard", "path": "/payments" },
+        { "label": "Métricas", "icon": "BarChart3", "path": "/analytics" },
+        { "label": "Compartilhar catálogo", "icon": "Share2", "path": "/share" },
+        { "label": "Usuários", "icon": "Users", "path": "/users" },
+        { "label": "Plano e assinatura", "icon": "Sparkles", "path": "/subscription" },
+        { "label": "Configurações", "icon": "Settings", "path": "/settings" }
+      ],
+      "scayl_platform_admin_menu": [
+        { "label": "Visão geral Scayl", "icon": "ShieldAlert", "path": "/admin" },
+        { "label": "Lojas", "icon": "Building2", "path": "/admin/stores" },
+        { "label": "Usuários Plataforma", "icon": "UserCheck", "path": "/admin/users" },
+        { "label": "Planos e Preços", "icon": "Layers", "path": "/admin/plans" },
+        { "label": "Assinaturas", "icon": "Receipt", "path": "/admin/subscriptions" },
+        { "label": "Métricas Global", "icon": "TrendingUp", "path": "/admin/metrics" }
+      ]
+    }
+  },
+  "key_pages_and_features": {
+    "auth_screens": "Clean email/password JWT login, store onboarding step-by-step wizard, role selection simulator for quick demo testing.",
+    "visao_geral_dashboard": {
+      "kpi_cards": [
+        "Visitas no catálogo (Total visitors)",
+        "Visualizações de produtos (Product pageviews)",
+        "Adições à sacola (Cart additions count)",
+        "Cliques para finalizar no WhatsApp (Checkout conversion clicks)",
+        "Produtos ativos (Active listed items vs catalog limit)"
+      ],
+      "widgets": [
+        "Interactive conversion funnel line/bar chart with period toggle (Hoje, 7 dias, 30 dias)",
+        "Onboarding checklist card (Completar dados, cadastrar 3 produtos, configurar frete, publicar catálogo)",
+        "Recent WhatsApp order clicks stream"
+      ]
+    },
+    "produtos": "Data table with photo thumbnail, product name, category badge, price in BRL (R$), availability toggle, active status, views count, search bar, category filter, bulk actions bar (Ativar, Desativar, Excluir), and Create/Edit slide-over drawer featuring multi-image upload drag&drop, price/promo inputs, variations/options manager (tamanhos, sabore), and custom specs.",
+    "categorias": "Category manager list with drag-and-drop reordering, active status toggle, product count badge, and add/edit category modal.",
+    "promocoes_e_cupons": "Discount codes grid with coupon code generator, usage limit counter, expiration date selector, discount type (% or R$), min order value, and toggle status.",
+    "minha_loja": "Store info form: logo upload, store title, description, custom domain / subdomain slug input, WhatsApp contact number with direct click test button, opening hours scheduler.",
+    "aparencia_e_banners": "Interactive theme customization page with live split preview frame (desktop & mobile preview switchers). Controls for hero banner upload, primary store theme color (overrides public catalog teal), product card style, and header layout.",
+    "entrega_e_retirada": "Delivery parameters form with options for Local Pickup (Retirada no balcão), Fixed rate delivery zones, distance-based pricing notice, estimated time, and minimum order amount.",
+    "formas_de_pagamento": "Payment methods toggle panel for PIX (with key setup + QR preview), Cartão na entrega, Dinheiro (com opção de troco), and Pagamento Online integration options.",
+    "metricas": "Full analytics suite with custom date picker (Range), top viewed products table, traffic channel breakdown, conversion rate indicators, and PDF report export button.",
+    "compartilhar_catalogo": "Store sharing portal with direct WhatsApp copy link, downloadable QR Code (PNG/SVG), embedded catalog widget iframe code snippet, and social sharing links.",
+    "usuarios": "Team members list with invitations, email address, role selector (Proprietário, Administrador, Editor de produtos), status (Ativo, Pendente), and permission matrix viewer.",
+    "plano_e_assinatura": "Subscription manager displaying current active plan (e.g. Plano Pro Scayl), monthly/annual billing cycle, product limit progress bar (85/100 produtos cadastrados), upgrade modal trigger, and invoice billing history table.",
+    "configuracoes": "Store settings containing notification preferences, webhook integration triggers, catalog auto-closing toggle, and danger zone for store suspension.",
+    "admin_scayl_console": "Dedicated platform administration area under /admin with MRR metrics, total stores count, store suspension/lock modal, tenant plan override controls, and global system health indicators."
+  },
+  "image_urls": [
+    {
+      "category": "store_showcase",
+      "url": "https://images.unsplash.com/photo-1738036968926-fbcd5ee11e9c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwxfHxzdG9yZSUyMG93bmVyJTIwZGFzaGJvYXJkJTIwYmFrZXJ5JTIwY29va2llcyUyMGUtY29tbWVyY2V8ZW58MHx8fHwxNzg5NzY4MzAzfDA&ixlib=rb-4.1.0&q=85",
+      "description": "Bakery product display case showcasing fresh cookies and treats for Hapster Cookies store demo"
+    },
+    {
+      "category": "product_cookies_gourmet",
+      "url": "https://images.unsplash.com/photo-1665782670932-7fc408a0b655?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwyfHxzdG9yZSUyMG93bmVyJTIwZGFzaGJvYXJkJTIwYmFrZXJ5JTIwY29va2llcyUyMGUtY29tbWVyY2V8ZW58MHx8fHwxNzg5NzY4MzAzfDA&ixlib=rb-4.1.0&q=85",
+      "description": "Assorted gourmet cookies batch photo for product catalog list"
+    },
+    {
+      "category": "product_cookie_jar",
+      "url": "https://images.pexels.com/photos/4322814/pexels-photo-4322814.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Homemade cookies in glass jar for premium specialty item photo"
+    },
+    {
+      "category": "bakery_storefront",
+      "url": "https://images.unsplash.com/photo-1783408355814-351ffec4a6ab?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHszfHxzdG9yZSUyMG93bmVyJTIwZGFzaGJvYXJkJTIwYmFrZXJ5JTIwY29va2llcyUyMGUtY29tbWVyY2V8ZW58MHx8fHwxNzg5NzY4MzAzfDA&ixlib=rb-4.1.0&q=85",
+      "description": "Cozy bakery storefront interior for store profile banner background"
+    }
+  ],
+  "data_testid_strategy": {
+    "rule": "All interactive elements (buttons, inputs, links, search, tables, toggles, modals, action triggers) MUST carry explicit data-testid attributes in kebab-case.",
+    "examples": [
+      "data-testid=\"sidebar-nav-visao-geral\"",
+      "data-testid=\"sidebar-nav-produtos\"",
+      "data-testid=\"product-search-input\"",
+      "data-testid=\"product-create-button\"",
+      "data-testid=\"product-status-switch-1\"",
+      "data-testid=\"store-theme-preview-mobile-btn\"",
+      "data-testid=\"share-catalog-copy-link-btn\"",
+      "data-testid=\"scayl-admin-stores-table\"",
+      "data-testid=\"login-submit-button\""
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Build the complete functional SaaS merchant panel and /admin Scayl platform area inside JS files.",
+    "Maintain high visual distinction between the neutral Slate Scayl Admin Panel and the store owner's live preview catalog.",
+    "Use Lucide icons, Sonner for toast notifications, and Shadcn UI components where appropriate.",
+    "Ensure every form (Product create/edit, Store settings, Delivery setup, User invites) has full working interactive state with realistic Portuguese text and mock data updates.",
+    "Include role-based view permissions switching so users can easily switch between Proprietário, Editor, and Admin Scayl views in demo mode."
+  ]
+}
